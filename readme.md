@@ -3,6 +3,7 @@
 ## Installation
 First clone this repository, and then install it with
 ```bash
+pip install -r requirements.txt
 pip install -e .
 ```
 ## Launch
