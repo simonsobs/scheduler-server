@@ -9,7 +9,9 @@ setuptools.setup(
     packages=setuptools.find_packages(where="src"),
     package_dir={"": "src"},
     package_data={
-        "scheduler_server": ["config.yaml", "*.txt"],
+        "scheduler_server": [
+            "configs/*.txt",
+        ],
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
