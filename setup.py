@@ -1,8 +1,11 @@
 import setuptools
 
+import versioneer
+
 setuptools.setup(
     name="scheduler_server",
-    version="0.1.0",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     author="Yilun Guan",
     author_email="yilun.guan@utoronto.ca",
     description="scheduler server",
