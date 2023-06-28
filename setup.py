@@ -1,15 +1,20 @@
 import setuptools
 
+import versioneer
+
 setuptools.setup(
     name="scheduler_server",
-    version="0.1.0",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     author="Yilun Guan",
     author_email="yilun.guan@utoronto.ca",
     description="scheduler server",
     packages=setuptools.find_packages(where="src"),
     package_dir={"": "src"},
     package_data={
-        "scheduler_server": ["config.yaml", "*.txt"],
+        "scheduler_server": [
+            "configs/*.txt",
+        ],
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
