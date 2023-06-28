@@ -11,6 +11,13 @@ Launching it requires `gunicorn` to be available. If we are inside this director
 ```bash
 gunicorn --bind localhost:8010 scheduler_server.app:app
 ```
+
+### Docker
+Alternatively, you can launch the server in a docker container:
+```bash
+docker run --rm -p 8010:8010 scheduler-server
+```
+
 ## Schedule API
 The API is temporarily hosted here: https://scheduler-uobd.onrender.com
 
