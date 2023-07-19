@@ -28,7 +28,10 @@ config = {
         },
         'make-source-scan': {
             'preferred_length': 1800,
-        }
+        },
+        'alt-range': {
+            'alt_range': [20, 90]
+        },
     },
     'calibration_targets': ["uranus", "saturn"],
     'soft_targets': []
