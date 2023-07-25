@@ -43,23 +43,20 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push development images
-        uses: docker/build-push-action@v4
+      - name: Build Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
         with:
-          context: .
-          push: ${{ github.event_name == 'push' }}
+          images: |
+            simonsobs/scheduler-server
+            ghcr.io/simonsobs/scheduler-server
           tags: |
-            simonsobs/scheduler-server:${{ env.docker_tag }}
-            ghcr.io/simonsobs/scheduler-server:${{ env.docker_tag }}
+            type=raw,value=${{ env.docker_tag }}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' }}
 
       - name: Build and push release images
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: ${{ github.event_name == 'release' }}
-          tags: |
-            simonsobs/scheduler-server:latest
-            simonsobs/scheduler-server:${{ env.docker_tag }}
-            ghcr.io/simonsobs/scheduler-server:latest
-            ghcr.io/simonsobs/scheduler-server:${{ env.docker_tag }}
-
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
