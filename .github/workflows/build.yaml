@@ -3,6 +3,8 @@ name: Publish Images to Container Registries
 on:
   release:
     types: [ released ]
+  push:
+    branches: [ main ]
   pull_request:
 
 jobs:
@@ -12,6 +14,11 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -36,11 +43,20 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push development images
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            simonsobs/scheduler-server:${{ env.docker_tag }}
+            ghcr.io/simonsobs/scheduler-server:${{ env.docker_tag }}
+
+      - name: Build and push release images
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: ${{ github.event_name == 'release' }}
           tags: |
             simonsobs/scheduler-server:latest
             simonsobs/scheduler-server:${{ env.docker_tag }}
