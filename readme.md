@@ -1,5 +1,17 @@
 # scheduler-server
 
+[![Image Builds](https://img.shields.io/github/actions/workflow/status/simonsobs/scheduler-server/build.yaml?branch=main)](https://github.com/simonsobs/scheduler-server/actions/workflows/build.yaml?query=workflow%3A%22Publish+Images+to+Container+Registries%22)
+[![Docker Hub](https://img.shields.io/badge/dockerhub-latest-blue)](https://hub.docker.com/r/simonsobs/scheduler-server)
+
+## Related Packages
+
+* [**scheduler**](https://github.com/simonsobs/scheduler) - The core scheduling
+  library, a.k.a. `schedlib`.
+* [**scheduler-server**](https://github.com/simonsobs/scheduler-server) - This
+  package. The Flask API for fetching schedules.
+* [**scheduler-web**](https://github.com/simonsobs/scheduler-web) - The web
+  front end for the scheduler.
+
 ## Installation
 First clone this repository, and then install it with
 ```bash
