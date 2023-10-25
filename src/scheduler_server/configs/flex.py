@@ -1,41 +1,67 @@
 config = """
-blocks:
-  moon: !source moon
-
-rules:
-  - !rule
-    name: sun-avoidance
-    min_angle_az: 6
-    min_angle_alt: 6
-    time_step: 10
-    n_buffer: 3
-  - !rule
-    name: min-duration
-    min_duration: 300
-  - !rule
-    name: make-source-plan
-    specs:
-      - bounds_x:
-        - -0.5
-        - 0.5
-        bounds_y:
-        - -0.5
-        - 0.5
-    spec_shape: ellipse
-    max_obs_length: 6000
-  - !rule
-    name: make-source-scan
-    preferred_length: 1800
-  - !rule
-    name: alt-range
-    alt_range:
-      - 20
-      - 90
-
-merge_order:
-  - moon
-post_rules:
-  - !rule
-    name: min-duration
-    min_duration: 600
+    blocks:
+        calibration:
+            saturn: 
+              type: source 
+              name: saturn
+            moon: 
+              type: source
+              name: moon
+    rules:
+        - name: sun-avoidance
+          min_angle_az: 45
+          min_angle_alt: 45
+          time_step: 30
+          n_buffer: 10
+        - name: make-drift-scan
+          block_query: calibration
+          array_query: full
+          el_bore: 50
+          drift: true
+    post_rules:
+        - name: min-duration
+          min_duration: 600
+    merge_order:
+        - moon
+        - saturn
+    geometries:
+      full:
+        left:
+          ws6:
+            center:
+            - -10.9624
+            - 6.46363
+            radius: 6
+          ws5:
+            center:
+            - -10.9624
+            - -6.46363
+            radius: 6
+        middle:
+          ws1:
+            center: 
+            - 0 
+            - 12.634
+            radius: 6
+          ws0:
+            center: 
+            - 0 
+            - 0 
+            radius: 6
+          ws4:
+            center: 
+            - 0 
+            - -12.634
+            radius: 6
+        right:
+          ws2:
+            center:
+            - 10.9624
+            - 6.46363
+            radius: 6
+          ws3:
+            center:
+            - 10.9624
+            - -6.46363
+            radius: 6
 """
