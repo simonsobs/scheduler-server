@@ -8,16 +8,10 @@ import json
 import traceback
 
 from . import handler, utils
-from .configs import get_default_config
+from .configs import get_config
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
-
-SUPPORTED_POLICIES = ['dummy', 'basic']
-POLICY_HANDLERS = {
-    'dummy': handler.dummy_policy,
-    'basic': handler.basic_policy
-}
 
 app = flask.Flask(__name__)
 
@@ -62,7 +56,7 @@ def schedule():
         return response
 
     # policy is a json string, so parse it now. The json
-    # has the form {"policy": "name", "config": {...}}
+    # has the form {"policy": "name", "preset": "config_preset_name", "config": {...}, }
     try:
         policy_dict = json.loads(policy)
     except json.JSONDecodeError:
@@ -75,27 +69,25 @@ def schedule():
 
     policy_name = policy_dict.get('policy', 'dummy')
     user_policy_config = policy_dict.get('config', {})
+    # unless specified, use policy_name to find default config for policy
+    config_preset_name = policy_dict.get('preset', policy_name)
 
     # check policy is supported
-    if policy_name not in SUPPORTED_POLICIES:
+    if policy_name not in handler.HANDLERS:
         response = flask.jsonify({
             'status': 'error',
-            'message': f'Invalid policy. Supported policies are: {SUPPORTED_POLICIES}'
+            'message': f'Invalid policy {policy_name}'
         })
         response.status_code = 400
         return response
 
     try:
-        # load policy config: first check if a custom policy config has been provided
-        # it will be inside app.config['policy_configs'][policy_name]
-        if 'policy_configs' in app.config and policy_name in app.config['policy_configs']:
-            policy_config = app.config['policy_configs'][policy_name]
-        else:
-            policy_config = get_default_config(policy_name)
+        # load policy config preset and merge with user config
+        policy_config = get_config(config_preset_name)
+        utils.nested_update(policy_config, user_policy_config, new_keys_allowed=True)
 
-        # merge user config with default config
-        utils.nested_update(policy_config, user_policy_config, new_keys_allowed=False)
-        commands = POLICY_HANDLERS[policy_name](t0, t1, policy_config, app.config)
+        # get scheduler commands
+        commands = handler.get_handler(policy_name)(t0, t1, policy_config)
     except Exception as e:
         response = flask.jsonify({
             'status': 'error',
@@ -112,9 +104,3 @@ def schedule():
     })
     response.status_code = 200
     return response
-
-# load config
-config_file = os.environ.get('SCHEDULER_CONFIG')
-if config_file is not None and os.path.exists(config_file):
-    config = utils.load_config(config_file)
-    app.config.update(config)
