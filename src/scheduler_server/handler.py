@@ -3,7 +3,7 @@ from pathlib import Path
 
 from .utils import split_into_parts
 import schedlib as sl
-from schedlib.policies import BasicPolicy
+from schedlib.policies import BasicPolicy, FlexPolicy
 import random
 
 random.seed(int(datetime.now().timestamp()))
@@ -21,9 +21,15 @@ def dummy_policy(t0, t1, policy_config={}, app_config={}):
     commands = "\n".join(commands)
     return commands
 
-
 def basic_policy(t0, t1, policy_config, app_config={}):
     policy = BasicPolicy(**policy_config)
+    seq = policy.init_seqs(t0, t1)
+    seq = policy.apply(seq)
+    cmd = policy.seq2cmd(seq)
+    return str(cmd)
+
+def flex_policy(t0, t1, policy_config, app_config={}):
+    policy = FlexPolicy.from_config(policy_config)
     seq = policy.init_seqs(t0, t1)
     seq = policy.apply(seq)
     cmd = policy.seq2cmd(seq)
