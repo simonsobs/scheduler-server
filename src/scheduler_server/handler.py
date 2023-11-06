@@ -3,13 +3,12 @@ from pathlib import Path
 
 from .utils import split_into_parts
 import schedlib as sl
-from schedlib.policies import BasicPolicy, FlexPolicy
+from schedlib.policies import BasicPolicy, FlexPolicy, SATPolicy
 import random
 
 random.seed(int(datetime.now().timestamp()))
-default_schedule = Path(__file__).parent / "schedule_sat.txt"
 
-def dummy_policy(t0, t1, policy_config={}, app_config={}):
+def dummy_handler(t0, t1, policy_config={}):
     dt = abs(t1.timestamp() - t0.timestamp())  # too lazy to check for t1<t0 now
     # get current time as a timestamp string
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -21,16 +20,48 @@ def dummy_policy(t0, t1, policy_config={}, app_config={}):
     commands = "\n".join(commands)
     return commands
 
-def basic_policy(t0, t1, policy_config, app_config={}):
+def basic_handler(t0, t1, policy_config):
     policy = BasicPolicy(**policy_config)
     seq = policy.init_seqs(t0, t1)
     seq = policy.apply(seq)
     cmd = policy.seq2cmd(seq)
     return str(cmd)
 
-def flex_policy(t0, t1, policy_config, app_config={}):
+def flex_handler(t0, t1, policy_config):
     policy = FlexPolicy.from_config(policy_config)
     seq = policy.init_seqs(t0, t1)
     seq = policy.apply(seq)
     cmd = policy.seq2cmd(seq)
     return str(cmd)
+
+def sat_handler(t0, t1, policy_config):
+    policy = SATPolicy.from_config(policy_config)
+    seq = policy.init_seqs(t0, t1)
+    seq = policy.apply(seq)
+    cmd = policy.seq2cmd(seq, t0, t1)
+    return str(cmd)
+
+# def generic_handler(policy_name):
+#     policy_cls = {
+#         'flex': FlexPolicy,
+#         'sat': SATPolicy
+#     }
+#     assert policy_name in policy_cls, f"Unknown policy {policy_name}"
+#     def handler(t0, t1, policy_config):
+#         policy = policy_cls[policy_name].from_config(policy_config)
+#         seq = policy.init_seqs(t0, t1)
+#         seq = policy.apply(seq)
+#         cmd = policy.seq2cmd(seq)
+#         return str(cmd)
+#     return handler
+
+HANDLERS = {
+    'dummy': dummy_handler,
+    'basic': basic_handler,
+    'flex': flex_handler,
+    'sat': sat_handler,
+}
+
+def get_handler(policy_name):
+    assert policy_name in HANDLERS, f"Unknown policy {policy_name}"
+    return HANDLERS[policy_name]

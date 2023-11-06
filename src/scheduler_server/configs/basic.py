@@ -5,7 +5,7 @@ minute = 60
 hour = 60 * minute
 
 config = {
-    'master_schedule': op.dirname(__file__) + '/schedule_sat.txt',
+    'master_schedule': op.join(op.dirname(__file__),'data/satp1_baseline_20231031.txt'),
     'rules': {
         'sun-avoidance': {
             'min_angle_az': 6,  # deg
