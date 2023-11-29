@@ -13,7 +13,7 @@ setuptools.setup(
     package_dir={"": "src"},
     package_data={
         "scheduler_server": [
-            "configs/*.txt",
+            "configs/data/*.txt",
         ],
     },
     classifiers=[
