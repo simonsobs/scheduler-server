@@ -1,12 +1,14 @@
 from datetime import datetime
-from pathlib import Path
-
-from .utils import split_into_parts
-import schedlib as sl
-from schedlib.policies import BasicPolicy, FlexPolicy, SATPolicy
+import os
+import importlib
+import yaml
+import os, os.path as op
 import random
 
+from .utils import split_into_parts, send_request
+
 random.seed(int(datetime.now().timestamp()))
+
 
 def dummy_handler(t0, t1, policy_config={}):
     dt = abs(t1.timestamp() - t0.timestamp())  # too lazy to check for t1<t0 now
@@ -20,46 +22,52 @@ def dummy_handler(t0, t1, policy_config={}):
     commands = "\n".join(commands)
     return commands
 
-def basic_handler(t0, t1, policy_config):
-    policy = BasicPolicy(**policy_config)
-    seq = policy.init_seqs(t0, t1)
-    seq = policy.apply(seq)
-    cmd = policy.seq2cmd(seq)
-    return str(cmd)
 
-def flex_handler(t0, t1, policy_config):
-    policy = FlexPolicy.from_config(policy_config)
-    seq = policy.init_seqs(t0, t1)
-    seq = policy.apply(seq)
-    cmd = policy.seq2cmd(seq)
-    return str(cmd)
+def rest_handler(t0, t1, policy_config={}):
+    url = policy_config.pop('url')
+    headers = policy_config.pop('headers', {})
+    queries = policy_config.pop('queries', {})
+    response = send_request(url, headers, queries)
 
-def sat_handler(t0, t1, policy_config):
-    policy = SATPolicy.from_config(policy_config)
-    seq = policy.init_seqs(t0, t1)
-    seq = policy.apply(seq)
-    cmd = policy.seq2cmd(seq, t0, t1)
-    return str(cmd)
+    plans = response['list']
 
-# def generic_handler(policy_name):
-#     policy_cls = {
-#         'flex': FlexPolicy,
-#         'sat': SATPolicy
-#     }
-#     assert policy_name in policy_cls, f"Unknown policy {policy_name}"
-#     def handler(t0, t1, policy_config):
-#         policy = policy_cls[policy_name].from_config(policy_config)
-#         seq = policy.init_seqs(t0, t1)
-#         seq = policy.apply(seq)
-#         cmd = policy.seq2cmd(seq)
-#         return str(cmd)
-#     return handler
+    # identify the plan that is currently active
+    active_plan = None
+    for plan in plans:
+        t_beg = datetime.fromisoformat(plan['from'])
+        t_end = datetime.fromisoformat(plan['to'])
+
+        if t_beg <= t0 <= t_end:
+            active_plan = plan
+            t1 = min(t1, t_end)
+            break
+
+    if active_plan is None:
+        raise ValueError("No active plan found")
+    
+    # execute plan
+    print(f"Active plan: {active_plan}")
+    program = active_plan['program']
+    config = yaml.safe_load(active_plan['config'])
+
+    script_base = os.environ['SCHED_BASE']
+    module_path = op.join(script_base, program) + (".py" if not program.endswith(".py") else "")
+
+    if not op.exists(module_path):
+        raise FileNotFoundError(f"Program {program} not found")
+
+    module_name = "_" + program.replace(".py", "").replace("/", ".")
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    schedule = module.main(t0, t1, **config)
+
+    return schedule
+
 
 HANDLERS = {
     'dummy': dummy_handler,
-    'basic': basic_handler,
-    'flex': flex_handler,
-    'sat': sat_handler,
+    'rest': rest_handler,
 }
 
 def get_handler(policy_name):
