@@ -42,12 +42,6 @@ def nested_update(dictionary, update_dict, new_keys_allowed=False):
 
 def send_request(url: str, headers: dict, queries: dict) -> dict:
     """Sends an HTTP GET request to a specified URL with the provided headers. """
-    try:
-        response = requests.get(url, headers=headers, params=queries)
-        # Check if the request was successful
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        # Log or print the error
-        print(f"Failed to retrieve data: {e}")
-        return {}
+    response = requests.get(url, headers=headers, params=queries)
+    response.raise_for_status()
+    return response.json()

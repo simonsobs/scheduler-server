@@ -4,6 +4,9 @@ import importlib
 import yaml
 import os, os.path as op
 import random
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .utils import split_into_parts, send_request
 
@@ -37,7 +40,7 @@ def rest_handler(t0, t1, policy_config={}):
         t_beg = datetime.fromisoformat(plan['from'])
         t_end = datetime.fromisoformat(plan['to'])
 
-        if t_beg <= t0 <= t_end:
+        if t_beg <= t0 <= t_end and plan['approve'] == True:
             active_plan = plan
             t1 = min(t1, t_end)
             break
@@ -46,7 +49,7 @@ def rest_handler(t0, t1, policy_config={}):
         raise ValueError("No active plan found")
     
     # execute plan
-    print(f"Active plan: {active_plan}")
+    logger.info(f"Active plan: {active_plan}")
     program = active_plan['program']
     config = yaml.safe_load(active_plan['config'])
 
@@ -56,10 +59,12 @@ def rest_handler(t0, t1, policy_config={}):
     if not op.exists(module_path):
         raise FileNotFoundError(f"Program {program} not found")
 
+    # load module from scheduler-scripts
     module_name = "_" + program.replace(".py", "").replace("/", ".")
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+
     schedule = module.main(t0, t1, **config)
 
     return schedule
