@@ -126,6 +126,17 @@ def get_preset_config(preset_name, default={}):
                 'sort': '-from',
                 'fields': 'program,from,to,config,approve'
             }
+        },
+        'rest.satp3': {
+            'url': os.environ['NOCODB_SATP3_URL'],
+            'headers': {
+                'accept': 'application/json',
+                'xc-auth': os.environ["NOCODB_TOKEN"],
+            },
+            'queries': {
+                'sort': '-from',
+                'fields': 'program,from,to,config,approve'
+            }
         }
     }
     return presets.get(preset_name, default)
