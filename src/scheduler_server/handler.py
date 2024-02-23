@@ -40,7 +40,7 @@ def rest_handler(t0, t1, policy_config={}):
         t_beg = datetime.fromisoformat(plan['from'])
         t_end = datetime.fromisoformat(plan['to'])
 
-        if t_beg <= t0 <= t_end and plan['approve'] == True:
+        if t_beg <= t0 <= t_end and plan['status'] == 'active':
             active_plan = plan
             t1 = min(t1, t_end)
             break
