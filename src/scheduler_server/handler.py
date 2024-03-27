@@ -48,10 +48,16 @@ def rest_handler(t0, t1, policy_config={}):
     if active_plan is None:
         raise ValueError("No active plan found")
     
-    # execute plan
     logger.info(f"Active plan: {active_plan}")
     program = active_plan['program']
-    config = yaml.safe_load(active_plan['config'])
+
+    # if active_plan['config'] is a yaml string, load it,
+    # otherwise pass it as is as config string
+    try:
+        config = yaml.safe_load(active_plan['config'])
+    except Exception as e:
+        logger.warning(f"Failed to load yaml config: {e}, passing it as string")
+        config = {'config': active_plan['config']}
 
     script_base = os.environ['SCHED_BASE']
     module_path = op.join(script_base, program) + (".py" if not program.endswith(".py") else "")
@@ -60,6 +66,9 @@ def rest_handler(t0, t1, policy_config={}):
         raise FileNotFoundError(f"Program {program} not found")
 
     # load module from scheduler-scripts
+    # updated module will not automatically be reloaded
+    # it is expected the server will restart on updating
+    # schedule program scripts
     module_name = "_" + program.replace(".py", "").replace("/", ".")
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     module = importlib.util.module_from_spec(spec)
