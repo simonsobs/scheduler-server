@@ -4,6 +4,5 @@ gunicorn
 numpy
 pyyaml
 pandas
-schedlib @ git+https://github.com/simonsobs/scheduler.git@yilun/dev
 python-dotenv
 requests
