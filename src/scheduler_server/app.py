@@ -120,7 +120,7 @@ def get_preset_config(preset_name, default={}):
             'url': os.environ['NOCODB_SATP1_URL'],
             'headers': {
                 'accept': 'application/json',
-                'xc-auth': os.environ["NOCODB_TOKEN"],
+                'xc-token': os.environ["NOCODB_TOKEN"],
             },
             'queries': {
                 'sort': '-from',
@@ -131,7 +131,7 @@ def get_preset_config(preset_name, default={}):
             'url': os.environ['NOCODB_SATP3_URL'],
             'headers': {
                 'accept': 'application/json',
-                'xc-auth': os.environ["NOCODB_TOKEN"],
+                'xc-token': os.environ["NOCODB_TOKEN"],
             },
             'queries': {
                 'sort': '-from',
