@@ -34,30 +34,44 @@ def rest_handler(t0, t1, policy_config={}):
 
     plans = response['list']
 
-    # identify the plan that is currently active
-    active_plan = None
+    # identify active plans
+    plans = [p for p in plans if p['status'] == 'active']
+    if len(plans) == 0:
+        raise ValueError("No active plans found")
+
+    # is there a plan that covers the full interval?
+    request_tot_sec = (t1-t0).total_seconds()
+
+    plans_overlap = []
     for plan in plans:
         t_beg = datetime.fromisoformat(plan['from'])
         t_end = datetime.fromisoformat(plan['to'])
 
-        if t_beg <= t0 <= t_end and plan['status'] == 'active':
-            active_plan = plan
-            t1 = min(t1, t_end)
-            break
+        plan_tot_sec = (t_end - t_beg).total_seconds()
+        overlap_sec = max((min(t1, t_end) - max(t0, t_beg)).total_seconds(), 0)
+        overlap_frac = overlap_sec / request_tot_sec
+        if overlap_frac > 0:
+            plans_overlap.append((overlap_frac, t_beg, plan))
 
-    if active_plan is None:
-        raise ValueError("No active plan found")
+    if len(plans_overlap) == 0:
+        raise ValueError("No active plan has any overlap with the requested period")
     
-    logger.info(f"Active plan: {active_plan}")
-    program = active_plan['program']
+    # sort to find plan with maximal overlap
+    best_plan = sorted(plans_overlap, key=lambda x: (-x[0], x[1]))[0][-1]  # largest overlap and earliest in time.
+    logger.info(f"Best plan found: {best_plan}")
+    program = best_plan['program']
 
-    # if active_plan['config'] is a yaml string, load it,
-    # otherwise pass it as is as config string
+    # expect active_plan['config'] to be a yaml expr, but it will
+    # also load a raw string as it is. If it is a raw string, we
+    # interpret as the final schedule.
     try:
-        config = yaml.safe_load(active_plan['config'])
+        config = yaml.safe_load(best_plan['config'])
+        if isinstance(config, str):
+            config = {"schedule": config}
     except Exception as e:
-        logger.warning(f"Failed to load yaml config: {e}, passing it as string")
-        config = {'config': active_plan['config']}
+        logger.error(f"Failed to load yaml config with error: {e}")
+        logger.error(f"config: {best_plan['config']}")
+        raise ValueError("Failed to parse yaml config")
 
     script_base = os.environ['SCHED_BASE']
     module_path = op.join(script_base, program) + (".py" if not program.endswith(".py") else "")
