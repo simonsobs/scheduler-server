@@ -8,3 +8,4 @@ build
 htmlcov
 pycache
 *.egg-info
+.env
