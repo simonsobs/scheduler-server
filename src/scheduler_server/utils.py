@@ -2,6 +2,7 @@
 import numpy as np
 import random
 import yaml
+import requests
 
 def split_into_parts(N, m):
     parts = []
@@ -38,3 +39,9 @@ def nested_update(dictionary, update_dict, new_keys_allowed=False):
             if key in dictionary or new_keys_allowed:
                 dictionary[key] = value
     return dictionary
+
+def send_request(url: str, headers: dict, queries: dict) -> dict:
+    """Sends an HTTP GET request to a specified URL with the provided headers. """
+    response = requests.get(url, headers=headers, params=queries)
+    response.raise_for_status()
+    return response.json()
