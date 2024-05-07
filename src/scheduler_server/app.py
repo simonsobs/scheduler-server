@@ -115,28 +115,29 @@ def schedule():
     return response
 
 def get_preset_config(preset_name, default={}):
+    http_headers = {
+        'headers': {
+            'accept': 'application/json',
+            'xc-token': os.environ["NOCODB_TOKEN"],
+        },
+        'queries': {
+            'sort': '-from',
+            'fields': 'program,from,to,config,status'
+        }
+    }
+        
     presets = {
         'rest.satp1': {
             'url': os.environ['NOCODB_SATP1_URL'],
-            'headers': {
-                'accept': 'application/json',
-                'xc-token': os.environ["NOCODB_TOKEN"],
-            },
-            'queries': {
-                'sort': '-from',
-                'fields': 'program,from,to,config,status'
-            }
+            **http_headers,
+        },
+        'rest.satp2': {
+            'url': os.environ['NOCODB_SATP2_URL'],
+            **http_headers,
         },
         'rest.satp3': {
             'url': os.environ['NOCODB_SATP3_URL'],
-            'headers': {
-                'accept': 'application/json',
-                'xc-token': os.environ["NOCODB_TOKEN"],
-            },
-            'queries': {
-                'sort': '-from',
-                'fields': 'program,from,to,config,status'
-            }
+            **http_headers,
         }
     }
     return presets.get(preset_name, default)
