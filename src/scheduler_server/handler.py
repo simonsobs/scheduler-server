@@ -55,7 +55,7 @@ def rest_handler(t0, t1, policy_config={}):
 
     if len(plans_overlap) == 0:
         raise ValueError("No active plan has any overlap with the requested period")
-    
+
     # sort to find plan with maximal overlap
     best_plan = sorted(plans_overlap, key=lambda x: (-x[0], x[1]))[0][-1]  # largest overlap and earliest in time.
     logger.info(f"Best plan found: {best_plan}")
@@ -88,7 +88,7 @@ def rest_handler(t0, t1, policy_config={}):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
 
-    schedule = module.main(t0, t1, **config)
+    schedule = module.main(t0=t0, t1=t1, **config)
 
     return schedule
 

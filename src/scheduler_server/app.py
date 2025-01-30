@@ -125,7 +125,7 @@ def get_preset_config(preset_name, default={}):
             'fields': 'program,from,to,config,status'
         }
     }
-        
+
     presets = {
         'rest.satp1': {
             'url': os.environ['NOCODB_SATP1_URL'],
