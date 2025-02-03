@@ -139,5 +139,9 @@ def get_preset_config(preset_name, default={}):
             'url': os.environ['NOCODB_SATP3_URL'],
             **http_headers,
         }
+        'rest.lat': {
+            'url': os.environ['NOCODB_LAT_URL'],
+            **http_headers,
+        }
     }
     return presets.get(preset_name, default)
