@@ -6,3 +6,4 @@ pyyaml
 pandas
 python-dotenv
 requests
+git+https://github.com/simonsobs/scheduler.git
