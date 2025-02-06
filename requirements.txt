@@ -6,4 +6,7 @@ pyyaml
 pandas
 python-dotenv
 requests
+socs
+ocs
+sorunlib
 git+https://github.com/simonsobs/scheduler.git
