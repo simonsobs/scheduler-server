@@ -29,4 +29,4 @@ RUN pip install .
 
 # Run server
 EXPOSE 8010
-ENTRYPOINT ["dumb-init", "gunicorn", "--bind", "0.0.0.0:8010", "scheduler_server.app:app"]
+ENTRYPOINT ["dumb-init", "gunicorn", "--bind", "0.0.0.0:8010", "--timeout", "120", "scheduler_server.app:app"]
