@@ -68,6 +68,20 @@ def rest_handler(t0, t1, policy_config={}):
         config = yaml.safe_load(best_plan['config'])
         if isinstance(config, str):
             config = {"schedule": config}
+
+        # add cal targets from linked table
+        cal_keys = ['boresight', 'elevation', 'focus', 'allow_partial', 'az_speed', 'az_accel']
+        config['cal_targets'] = []
+        for i, source in enumerate(best_plan['cal_targets.source']):
+            if source is None:
+                raise ValueError("Source name is empty")
+            cal_target = {}
+            cal_target['source'] = source
+            for cal_key in cal_keys:
+                if best_plan['cal_targets.' + cal_key][i] is not None:
+                    cal_target[cal_key] = best_plan['cal_targets.' + cal_key][i]
+            config['cal_targets'].append(cal_target)
+        logger.info(f"best plan cal targets: {config['cal_targets']}")
     except Exception as e:
         logger.error(f"Failed to load yaml config with error: {e}")
         logger.error(f"config: {best_plan['config']}")
