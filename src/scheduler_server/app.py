@@ -128,19 +128,19 @@ def get_preset_config(preset_name, default={}):
 
     presets = {
         'rest.satp1': {
-            'url': os.environ['NOCODB_SATP1_URL'],
+            'url': os.environ.get('NOCODB_SATP1_URL',""),
             **http_headers,
         },
         'rest.satp2': {
-            'url': os.environ['NOCODB_SATP2_URL'],
+            'url': os.environ.get('NOCODB_SATP2_URL',""),
             **http_headers,
         },
         'rest.satp3': {
-            'url': os.environ['NOCODB_SATP3_URL'],
+            'url': os.environ.get('NOCODB_SATP3_URL',""),
             **http_headers,
         },
         'rest.lat': {
-            'url': os.environ['NOCODB_LAT_URL'],
+            'url': os.environ.get('NOCODB_LAT_URL',""),
             **http_headers,
         }
     }
