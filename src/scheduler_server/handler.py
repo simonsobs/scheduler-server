@@ -40,24 +40,34 @@ def rest_handler(t0, t1, policy_config={}):
         raise ValueError("No active plans found")
 
     # is there a plan that covers the full interval?
-    request_tot_sec = (t1-t0).total_seconds()
+    # request_tot_sec = (t1-t0).total_seconds()
 
-    plans_overlap = []
-    for plan in plans:
-        t_beg = datetime.fromisoformat(plan['from'])
-        t_end = datetime.fromisoformat(plan['to'])
+    nearest_index = max(
+        (i for i, entry in enumerate(plans) if datetime.fromisoformat(entry['from']) <= t0),
+        key=lambda i: plans[i]["from"],
+        default=None
+    )
 
-        plan_tot_sec = (t_end - t_beg).total_seconds()
-        overlap_sec = max((min(t1, t_end) - max(t0, t_beg)).total_seconds(), 0)
-        overlap_frac = overlap_sec / request_tot_sec
-        if overlap_frac > 0:
-            plans_overlap.append((overlap_frac, t_beg, plan))
-
-    if len(plans_overlap) == 0:
+    if nearest_index is None:
         raise ValueError("No active plan has any overlap with the requested period")
 
+    # plans_overlap = []
+    # for plan in plans:
+    #     t_beg = datetime.fromisoformat(plan['from'])
+    #     t_end = datetime.fromisoformat(plan['to'])
+
+    #     plan_tot_sec = (t_end - t_beg).total_seconds()
+    #     overlap_sec = max((min(t1, t_end) - max(t0, t_beg)).total_seconds(), 0)
+    #     overlap_frac = overlap_sec / request_tot_sec
+    #     if overlap_frac > 0:
+    #         plans_overlap.append((overlap_frac, t_beg, plan))
+
+    # if len(plans_overlap) == 0:
+    #     raise ValueError("No active plan has any overlap with the requested period")
+
     # sort to find plan with maximal overlap
-    best_plan = sorted(plans_overlap, key=lambda x: (-x[0], x[1]))[0][-1]  # largest overlap and earliest in time.
+    #best_plan = sorted(plans_overlap, key=lambda x: (-x[0], x[1]))[0][-1]  # largest overlap and earliest in time.
+    best_plan = plans[nearest_index]
     logger.info(f"Best plan found: {best_plan}")
     program = best_plan['program']
 
