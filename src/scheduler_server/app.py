@@ -122,7 +122,7 @@ def get_preset_config(preset_name, default={}):
         },
         'queries': {
             'sort': '-from',
-            'expand': 'cal_targets'
+            'expand': 'cal_targets, config'
         }
     }
 
