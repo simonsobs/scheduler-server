@@ -86,6 +86,7 @@ def rest_handler(t0, t1, policy_config={}):
             config['cal_targets'] = []
         # ignore if no linked cal targets
         if 'cal_targets.source' in best_plan:
+            cal_targets = []
             for i, source in enumerate(best_plan['cal_targets.source']):
                 if source is None:
                     logger.warn("No source name, skipping")
@@ -95,7 +96,11 @@ def rest_handler(t0, t1, policy_config={}):
                 for cal_key in cal_keys:
                     if best_plan['cal_targets.' + cal_key][i] is not None:
                         cal_target[cal_key] = best_plan['cal_targets.' + cal_key][i]
-                config['cal_targets'].append(cal_target)
+                cal_targets.append(cal_target)
+            # sort based on order
+            cal_targets_sorted = sorted(cal_targets, key=lambda x: x["order"])
+            # add into config
+            config['cal_targets'] = config['cal_targets'] + cal_targets_sorted
         logger.info(f"Best plan cal targets: {config['cal_targets']}")
     except Exception as e:
         logger.error(f"Failed to load yaml config with error: {e}")
