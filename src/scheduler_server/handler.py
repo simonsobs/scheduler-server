@@ -80,7 +80,8 @@ def rest_handler(t0, t1, policy_config={}):
             config = {"schedule": config}
 
         # add cal targets from linked table
-        cal_keys = ['boresight', 'elevation', 'focus', 'allow_partial', 'az_speed', 'az_accel', 'order']
+        cal_keys = ['boresight', 'elevation', 'focus', 'allow_partial', 'drift',
+                    'az_branch', 'az_speed', 'az_accel', 'source_direction', 'order']
         # don't overwrite any cal targets passed in the config
         if 'cal_targets' not in config:
             config['cal_targets'] = []
