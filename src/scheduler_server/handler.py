@@ -100,6 +100,8 @@ def rest_handler(t0, t1, policy_config={}):
                 cal_targets.append(cal_target)
             # sort based on order
             cal_targets_sorted = sorted(cal_targets, key=lambda x: x["order"])
+            # remove order
+            cal_targets_sorted = [{k: v for k, v in item.items() if k != "order"} for item in cal_targets_sorted]
             # add into config
             config['cal_targets'] = config['cal_targets'] + cal_targets_sorted
         logger.info(f"Best plan cal targets: {config['cal_targets']}")
