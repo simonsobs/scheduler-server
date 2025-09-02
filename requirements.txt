@@ -8,4 +8,4 @@ python-dotenv
 requests
 socs
 sorunlib
-git+https://github.com/simonsobs/scheduler.git@67e9426cd4cc6d19de5ef3b6b077ad492997b0f4
+git+https://github.com/simonsobs/scheduler.git@e4dc51d8e8f26552de25538ae4f9c97bc454961d
