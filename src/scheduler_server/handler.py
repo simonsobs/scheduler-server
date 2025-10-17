@@ -40,7 +40,6 @@ def rest_handler(t0, t1, policy_config={}):
         raise ValueError("No active plans found")
 
     # is there a plan that covers the full interval?
-    # request_tot_sec = (t1-t0).total_seconds()
 
     nearest_index = max(
         (i for i, entry in enumerate(plans) if datetime.fromisoformat(entry['from']) <= t0),
@@ -51,22 +50,7 @@ def rest_handler(t0, t1, policy_config={}):
     if nearest_index is None:
         raise ValueError("No active plan has any overlap with the requested period")
 
-    # plans_overlap = []
-    # for plan in plans:
-    #     t_beg = datetime.fromisoformat(plan['from'])
-    #     t_end = datetime.fromisoformat(plan['to'])
-
-    #     plan_tot_sec = (t_end - t_beg).total_seconds()
-    #     overlap_sec = max((min(t1, t_end) - max(t0, t_beg)).total_seconds(), 0)
-    #     overlap_frac = overlap_sec / request_tot_sec
-    #     if overlap_frac > 0:
-    #         plans_overlap.append((overlap_frac, t_beg, plan))
-
-    # if len(plans_overlap) == 0:
-    #     raise ValueError("No active plan has any overlap with the requested period")
-
     # sort to find plan with maximal overlap
-    #best_plan = sorted(plans_overlap, key=lambda x: (-x[0], x[1]))[0][-1]  # largest overlap and earliest in time.
     best_plan = plans[nearest_index]
     logger.info(f"Best plan found: {best_plan}")
     program = best_plan['program']
@@ -91,6 +75,11 @@ def rest_handler(t0, t1, policy_config={}):
             for i, source in enumerate(best_plan['cal_targets.source']):
                 if source is None:
                     logger.warn("No source name, skipping")
+                    continue
+                if (
+                    datetime.fromisoformat(best_plan['cal_targets.t0'][i]) < t0 or
+                    datetime.fromisoformat(best_plan['cal_targets.t1'][i]) > t1
+                ):
                     continue
                 cal_target = {}
                 cal_target['source'] = source
@@ -125,6 +114,7 @@ def rest_handler(t0, t1, policy_config={}):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
 
+    config = {**config, **policy_config}
     schedule = module.main(t0=t0, t1=min(t1, datetime.fromisoformat(best_plan['to'])), **config)
 
     return schedule
