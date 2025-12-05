@@ -69,7 +69,7 @@ def schedule():
             'message': 'Invalid policy, needs to be a json string'
         })
         response.status_code = 400
-        return response 
+        return response
 
     policy_name = policy_dict.get('policy', 'dummy')
     user_policy_config = policy_dict.get('config', {})
@@ -115,33 +115,22 @@ def schedule():
     return response
 
 def get_preset_config(preset_name, default={}):
-    http_headers = {
-        'headers': {
-            'accept': 'application/json',
-            'xc-token': os.environ["NOCODB_TOKEN"],
-        },
-        'queries': {
-            'sort': '-from',
-            'expand': 'cal_targets, config'
-        }
-    }
-
     presets = {
         'rest.satp1': {
-            'url': os.environ.get('NOCODB_SATP1_URL',""),
-            **http_headers,
+            'program': f"scheduler-scripts/sat/gen_schedule",
+            'config_path': "/scheduler-configs/sat/run_satp1.yaml",
         },
         'rest.satp2': {
-            'url': os.environ.get('NOCODB_SATP2_URL',""),
-            **http_headers,
+            'program': "scheduler-scripts/sat/gen_schedule",
+            'config_path': "scheduler-configs/sat/run_satp2.yaml",
         },
         'rest.satp3': {
-            'url': os.environ.get('NOCODB_SATP3_URL',""),
-            **http_headers,
+            'program': "scheduler-scripts/sat/gen_schedule",
+            'config_path': "scheduler-configs/sat/run_satp3.yaml",
         },
         'rest.lat': {
-            'url': os.environ.get('NOCODB_LAT_URL',""),
-            **http_headers,
+            'program': "scheduler-scripts/lat/gen_schedule",
+            'config_path': "scheduler-configs/lat/run_lat.yaml",
         }
     }
     return presets.get(preset_name, default)
