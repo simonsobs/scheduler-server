@@ -118,7 +118,7 @@ def get_preset_config(preset_name, default={}):
     presets = {
         'rest.satp1': {
             'program': "scheduler-scripts/sat/gen_schedule",
-            'config_path': "/scheduler-configs/sat/run_satp1.yaml",
+            'config_path': "scheduler-configs/sat/run_satp1.yaml",
         },
         'rest.satp2': {
             'program': "scheduler-scripts/sat/gen_schedule",
