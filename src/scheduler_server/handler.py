@@ -54,7 +54,10 @@ def rest_handler(t0, t1, policy_config={}):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
 
-    schedule = module.main(t0=t0, t1=min(t1, datetime.fromisoformat(best_plan['to'])), **config)
+    config['t0'] = t0
+    config['t1'] = t1
+
+    schedule = module.main(**config)
 
     return schedule
 
