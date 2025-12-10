@@ -34,7 +34,9 @@ def rest_handler(t0, t1, policy_config={}):
     script_base = os.environ['SCHED_SCRIPTS_DIR']
 
     try:
-        config = yaml.safe_load(op.join(config_base, config_path))
+        with open(op.join(config_base, config_path)) as f:
+            f = os.path.expandvars(f.read())
+        config = yaml.safe_load(f)
     except:
         raise ValueError(f"Failed to parse yaml config {config_path}: {e}")
 
