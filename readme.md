@@ -30,9 +30,6 @@ Alternatively, you can launch the server in a docker container:
 docker run --rm -p 8010:8010 scheduler-server
 ```
 
-## Schedule API
-The API is temporarily hosted here: https://scheduler-uobd.onrender.com
-
 ### Endpoint
 `POST /api/v1/schedule/`
 
@@ -44,7 +41,7 @@ The API expects a JSON object in the request body with the following properties:
 
 - `t0`: a string representing the start time in the format "YYYY-MM-DD HH:MM"
 - `t1`: a string representing the end time in the format "YYYY-MM-DD HH:MM"
-- `policy`: a json string representing the scheduling policy. It should contain a `"policy"` key which specify the name of the policy and a `"config"` key which contains a dictionary of configurations for this given policy. The provided configuration will overwrite the default configuration used. Current supported policy names: `"dummy"` and `"basic"`.  
+- `policy`: a json string representing the scheduling policy. It should contain a `"policy"` key which specify the name of the policy and a `"config"` key which contains a dictionary of configurations for this given policy. The provided configuration will overwrite the default configuration used. Current supported policy names: `"dummy"` and `"basic"`.
 
 ### Response
 
