@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import json
 import importlib
 import yaml
 import os, os.path as op
@@ -11,6 +12,30 @@ logger = logging.getLogger(__name__)
 from .utils import split_into_parts, send_request
 
 random.seed(int(datetime.now().timestamp()))
+
+
+def config_handler(t0, t1, policy_config={}):
+    config_path = policy_config.pop("config_path")
+    program = policy_config.pop('program')
+
+    config_base = os.environ['SCHED_CFG_DIR']
+    script_base = os.environ['SCHED_SCRIPTS_DIR']
+
+    try:
+        with open(op.join(config_base, config_path)) as f:
+            f = os.path.expandvars(f.read())
+        config = yaml.safe_load(f)
+    except:
+        raise ValueError(f"Failed to parse yaml config {config_path}: {e}")
+
+    # merge user config into loaded config
+    config = {**config, **policy_config}
+
+    config['t0'] = t0
+    config['t1'] = t1
+
+    # return config file
+    return json.dumps(my_dict)
 
 
 def dummy_handler(t0, t1, policy_config={}):
@@ -68,6 +93,7 @@ def rest_handler(t0, t1, policy_config={}):
 HANDLERS = {
     'dummy': dummy_handler,
     'rest': rest_handler,
+    'config': config_handler,
 }
 
 def get_handler(policy_name):
